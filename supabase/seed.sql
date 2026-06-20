@@ -57,7 +57,7 @@ insert into call_logs (
 )
 select
   c.id,
-  'call_' || generate_series,
+  'call_' || generate_series || '_' || extract(epoch from now())::bigint,
   '+4477' || lpad((random() * 99999999)::int::text, 8, '0'),
   now() - (random() * 30)::int * interval '1 day' - (random() * 86400)::int * interval '1 second',
   now() - (random() * 30)::int * interval '1 day' - (random() * 86400)::int * interval '1 second' + ((120 + random() * 300)::int) * interval '1 second',
