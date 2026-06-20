@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: "Sitel AI — AI Voice Support",
     description: "Replace Tier-1 call centre agents with AI. 70% call deflection. Live in 7 days.",
     type: "website",
-    url: "https://sitel-ai.vercel.app",
+    url: "https://sitel-ai-calls.vercel.app",
   },
 };
 
