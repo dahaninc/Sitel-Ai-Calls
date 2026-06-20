@@ -1,171 +1,164 @@
-# ICP Targeting Guide
-## Finding Your First 50 Prospects This Week
+# Sitel AI — ICP Targeting Playbook
+## Niche: UK Shopify eCommerce Brands
 
-**Target ICP:** UK eCommerce, SaaS, or logistics businesses with £1M–£20M revenue, inbound call volume of 500+ calls/month, and a customer service team of 2–15 agents.
+**Primary niche:** UK-based Shopify merchants, £2M–£25M annual GMV, selling physical goods (fashion, homewares, health/beauty, sports, gifting).
 
----
-
-## WHY THIS ICP
-
-**Too small (under £1M):** Don't have the call volume or budget to justify AI. They'll say "we just handle it ourselves."
-
-**Too large (over £20M):** Have enterprise procurement, RFP processes, security reviews, and 6-month sales cycles. Not right for first revenue.
-
-**The sweet spot (£1M–£20M):** Have enough volume to feel the pain, a decision-maker who can say yes quickly, and enough budget for a £5–15K investment. One founder or Head of Operations can sign off.
+**Why this niche:**
+- 60–75% of inbound calls are "where's my order?" — the single most automatable call type
+- Shopify integration is one connector, reusable across all clients
+- Founders and COOs can say yes without a procurement process
+- Trustpilot and LinkedIn provide real-time outbound signals
+- Community-driven: one happy client refers three more
 
 ---
 
-## LINKEDIN SALES NAVIGATOR FILTERS
+## Ideal Client Profile
 
-### Primary Search — eCommerce
-
-Use **"Lead" search** with these filters:
-
-| Filter | Value |
+| Signal | Target range |
 |---|---|
-| Geography | United Kingdom |
-| Industry | Retail, Apparel & Fashion, Consumer Goods, Sporting Goods |
-| Seniority Level | Director, VP, C-Level, Owner |
-| Job Title (include) | "Head of Customer Experience", "Head of Operations", "Customer Service Manager", "COO", "Founder", "Director of Operations", "eCommerce Manager" |
-| Company headcount | 11–200 employees |
-| Company revenue | Not always filterable — use headcount as proxy (11–200 = roughly £1M–£20M for most UK eCommerce) |
+| Annual GMV | £2M–£25M |
+| Monthly orders | 1,500–15,000 |
+| Estimated monthly CS calls | 800–6,000 |
+| CS team size | 2–12 agents |
+| Platform | Shopify or Shopify Plus |
+| Geography | UK (GB postcode delivery) |
+| Trustpilot rating | 2.8–4.1 |
+| Headcount | 15–150 employees |
 
-### Secondary Filter — Hiring Signal
+**Sectors within eCommerce to prioritise (in order):**
+1. Fashion & apparel — high return rates, high call volume
+2. Homewares & furniture — delivery complaints, damaged goods
+3. Health, beauty & supplements — subscription queries, wrong items
+4. Sports & outdoor — sizing, delivery, seasonal spikes
+5. Gifting & personalised goods — time-sensitive, high anxiety callers
+6. Pet supplies — loyal repeat buyers, high LTV, strong community
 
-Add **"Company News"** → "Hiring on LinkedIn" to surface companies actively recruiting customer service agents right now. These are your warmest prospects.
+---
 
-### Account Search — Target Company Profile
+## Buying Signals (trigger outreach when you see these)
 
-Run an **"Account" search** simultaneously:
+### Signal 1 — Trustpilot complaints about CS response time
+Search Trustpilot reviews containing:
+- "waited days for a reply"
+- "no one answers the phone"
+- "customer service is non-existent"
+- "still waiting to hear back"
+- "impossible to get through"
 
-| Filter | Value |
+Any brand with 3.0–3.8 stars AND CS complaint keywords is a hot prospect.
+
+**Tool:** Trustpilot public review pages, or use clay.com to scrape + filter.
+
+### Signal 2 — Hiring for customer service roles
+LinkedIn job posts for:
+- "Customer Service Advisor"
+- "Customer Experience Agent"
+- "Customer Support Representative"
+- Filter: UK, Retail/Consumer Goods, 20–200 employees
+
+This means: they're drowning in call volume and spending £28k+ to fix it manually.
+
+**Tool:** LinkedIn Sales Navigator → Job Changes filter + job alerts.
+
+### Signal 3 — Black Friday / peak season proximity
+August–October: every Shopify brand is terrified of Q4 volume spikes. Use seasonality as urgency. "Are you Black Friday ready?" lands hard in September.
+
+### Signal 4 — Recent funding or investment
+A brand that just raised investment is scaling fast. Call volume is about to spike. They need infrastructure now.
+
+**Tool:** Beauhurst, Crunchbase, or LinkedIn "New Job" filter (when a COO joins a scale-up).
+
+### Signal 5 — Shopify Plus upgrade
+Brands that just moved to Shopify Plus are scaling and investing in operational infrastructure. Perfect timing.
+
+---
+
+## LinkedIn Sales Navigator Search Filters
+
+**Search 1 — Decision makers at eCommerce brands:**
+- Title: Founder, Co-Founder, COO, Head of Operations, Head of Customer Experience, Director of CX
+- Industry: Retail, Consumer Goods, Apparel & Fashion, Health & Wellness
+- Company headcount: 10–200
+- Geography: United Kingdom
+- Company keywords: Shopify, eCommerce, online retailer
+
+**Search 2 — CS hiring signal:**
+- Job posted: Customer Service / Customer Support
+- Industry: Retail, Consumer Goods
+- Company headcount: 20–500
+- Geography: UK
+
+---
+
+## Prospect Scoring (1–10)
+
+Score each prospect before outreaching. Only contact 7+.
+
+| Criterion | Points |
 |---|---|
-| Geography | United Kingdom |
-| Industry | Retail, Consumer Goods |
-| Company headcount | 11–200 |
-| Annual revenue (if available) | £1M–£20M |
-| Technologies used | Shopify, Gorgias, Zendesk, Freshdesk, Klaviyo |
+| Shopify confirmed (via BuiltWith or store footer) | +2 |
+| Trustpilot rating 2.8–3.8 with CS complaints | +2 |
+| Currently hiring CS roles | +2 |
+| £2M–£25M GMV estimated | +1 |
+| UK-based, physical goods | +1 |
+| 15–150 employees | +1 |
+| Recent growth signal (funding, new hire, press) | +1 |
 
-The technology filter (via LinkedIn + tools like Similarweb/BuiltWith) is gold — if they're on Gorgias or Zendesk, they have structured support operations and understand the problem you're solving.
-
----
-
-## TRUSTPILOT MONITORING
-
-Trustpilot is a live feed of customer pain — and therefore prospect pain.
-
-### How to Use It
-
-1. Go to **uk.trustpilot.com**
-2. Browse these categories:
-   - **Shopping & Fashion** → subcategory: Online Shopping
-   - **Electronics & Technology** → Online Shopping
-   - **Home & Garden** → Online Shopping
-3. Filter by **1-star and 2-star reviews**
-4. Search review text for: "on hold", "couldn't get through", "no one answered", "waited", "phone line", "call centre", "automated message"
-
-### What You're Looking For
-
-Reviews that say things like:
-- *"Waited 45 minutes on hold"*
-- *"No way to speak to anyone"*
-- *"The phone just rings and rings"*
-- *"Automated system is useless"*
-- *"3 weeks and still no reply"*
-
-Each one of these is a company whose CX Director is embarrassed right now. That's your in.
-
-### Process
-
-1. Identify the brand from the review
-2. Search them on LinkedIn
-3. Find the Head of Customer Experience, Operations Director, or Founder
-4. Reference the specific review pattern (not a specific customer's name — that's weird) in your outreach
+**Score 8–10:** Contact same day. Personalised LinkedIn DM + email.
+**Score 6–7:** Add to weekly batch outreach.
+**Score <6:** Skip.
 
 ---
 
-## SHOPIFY APP SIGNALS
+## 20 Named UK Shopify Brands to Target Now
 
-Brands using these Shopify apps are eCommerce businesses at the right scale and sophistication:
-
-| App | What It Signals |
-|---|---|
-| **Gorgias** | Has structured customer support operations, 200–2,000 tickets/month |
-| **Klaviyo** | Email marketing maturity — growing revenue base |
-| **ReCharge / Skio** | Subscription model — recurring support volume |
-| **LoyaltyLion / Yotpo** | Retention focus — care about CX |
-| **ShipBob / Linnworks** | Warehouse/fulfilment at scale — will have delivery queries |
-| **Okendo / Judge.me** | Product reviews at scale — care about reputation |
-| **PostCo / Loop Returns** | Already investing in returns automation |
-
-**How to find who uses these apps:**
-- **BuiltWith.com** — search by technology, filter by country. Free tier gives you top sites, paid tier gives full lists
-- **Datanyze** — similar, integrates with LinkedIn Sales Navigator
-- **SimilarWeb** — shows tech stack + estimated traffic for any domain
-
----
-
-## REVENUE RANGE VALIDATION
-
-You can't always see revenue directly. Use these signals to estimate:
-
-| Signal | Approximate Revenue |
-|---|---|
-| 11–50 employees on LinkedIn | £500K–£5M |
-| 51–100 employees | £3M–£15M |
-| Trustpilot: 500+ reviews | Meaningful customer base |
-| Trustpilot: 2,000+ reviews | Likely £5M+ GMV |
-| Alexa/SimilarWeb rank under 500K (UK) | Active traffic / real revenue |
-| Facebook ad library: running 5+ active ads | Spending on acquisition — has revenue |
-
----
-
-## 10 SPECIFIC UK eCommerce COMPANIES THAT FIT THE ICP
-
-These are real UK brands that match the profile based on publicly available information. Verify current details before reaching out.
-
-| # | Brand | Category | Why They Fit |
+| Brand | Niche | Trustpilot | Signal |
 |---|---|---|---|
-| 1 | **Gym+Coffee UK** | Activewear | Fast-growing, 50–200 employees, Shopify-based, strong Trustpilot presence |
-| 2 | **Castore** | Performance sportswear | Scaling rapidly, 100–200 employees, high order volume |
-| 3 | **Percy & Reed** | Hair & beauty | D2C, Shopify, active support function, Trustpilot presence |
-| 4 | **Patch Plants** | Home & garden | Shopify, delivery-heavy product, order tracking will dominate support |
-| 5 | **Spoke London** | Menswear | D2C, bespoke sizing = more support queries, 50–100 employees |
-| 6 | **Huel** | Nutrition / food | High subscription volume, return queries, 100–200 employees |
-| 7 | **Bulk (Bulk Powders)** | Supplements | eCommerce at scale, high SKU count, delivery-heavy |
-| 8 | **Prezzybox** | Gifts | Seasonal peaks, high call volume at Christmas, SME |
-| 9 | **Mous** | Phone accessories | D2C, Shopify, active international shipping — delivery queries |
-| 10 | **Snag Tights** | Fashion | Viral D2C brand, 50–100 employees, high customer engagement |
-
-> **Note:** Always verify headcount, Trustpilot volume, and current team structure on LinkedIn before outreach. Company situations change.
+| Gym+Coffee | Activewear | 3.9 | CS hiring |
+| Castore | Premium sportswear | 3.4 | CS complaints |
+| Patch Plants | Plants & gardening | 4.1 | Scaling fast |
+| Spoke London | Men's trousers | 4.0 | CS team size |
+| Huel | Nutrition | 4.2 | High volume |
+| Snag Tights | Hosiery | 4.5 | Community led |
+| Mous | Phone cases | 4.3 | International shipping complaints |
+| Prezzybox | Gifts | 3.6 | CS complaints |
+| Bulk | Sports supplements | 3.9 | High SKU count |
+| Ohh Deer | Gifts & stationery | 4.2 | CS hiring |
+| Wolf & Badger | Marketplace fashion | 3.8 | Return complaints |
+| Represent | Premium streetwear | 3.5 | Delivery complaints |
+| Lounge Underwear | Intimates | 3.7 | CS complaints |
+| In The Style | Fast fashion | 2.9 | High complaint volume |
+| AYBL | Activewear | 3.8 | CS hiring |
+| Absolute Collagen | Beauty supplements | 4.6 | Subscription queries |
+| LoveCrafts | Craft supplies | 4.2 | Community-led, scaling |
+| Scamp & Dude | Fashion | 4.3 | Growing fast |
+| Manière De Voir | Luxury fashion | 3.1 | CS complaints heavy |
+| Passenger Clothing | Outdoor/lifestyle | 4.0 | CS hiring |
 
 ---
 
-## BUILDING YOUR PROSPECT LIST — STEP BY STEP
+## Courier Companies (V2 — after first 3 clients)
 
-### Day 1 (Monday)
+Couriers are a massive opportunity but need an enterprise sales motion:
+- **Target:** Evri, Yodel, APC Overnight, DX, Tuffnells, Parcelforce, DHL Express UK
+- **Pain:** WISMO (Where Is My Order/Parcel) = 70–80% of all calls. Millions per month.
+- **Contact:** Head of Customer Operations, CX Director, COO
+- **Sales cycle:** 3–6 months. Requires case studies and deflection rate proof.
+- **Pricing:** Custom. £15k–£50k setup. £10k–£40k/month.
+- **Action:** Build case study from first eCommerce clients, then open courier conversations in month 3.
 
-1. Set up LinkedIn Sales Navigator (free trial available)
-2. Run the Lead + Account searches above
-3. Export or save 100 accounts
-4. Cross-reference with Trustpilot — check each brand for review signals
-5. Tag in your CRM/spreadsheet: "Hiring Signal", "Trustpilot Signal", "Scaling Signal"
+---
 
-### Prioritisation Framework
+## Tools for This Workflow
 
-Score each prospect 1–3 on each signal:
+| Tool | Purpose | Cost |
+|---|---|---|
+| LinkedIn Sales Navigator | Prospect search + job signals | £79/mo |
+| Clay.com | Enrichment + Trustpilot scraping + AI personalisation | £149/mo |
+| Instantly.ai | Cold email sequences | £37/mo |
+| Expandi.io | LinkedIn automation | £99/mo |
+| BuiltWith | Confirm Shopify usage | £29/mo |
+| Hunter.io | Find email addresses | £34/mo |
+| **Total** | | **~£427/mo** |
 
-| Signal | Score 1 | Score 2 | Score 3 |
-|---|---|---|---|
-| Support pain visible | No Trustpilot issues | Some negative reviews | Active complaints about phone/wait |
-| Hiring signal | No open roles | 1 CS role | 3+ CS agent roles open |
-| Company growth | Stable | Growing | Recently announced expansion/funding |
-| Decision-maker accessible | Can't find on LinkedIn | On LinkedIn, no mutual | On LinkedIn, mutual connections |
-
-**Total 10–12 = reach out today. Total 7–9 = reach out this week. Under 7 = park for now.**
-
-### Prospect Spreadsheet Template
-
-| Company | Contact Name | LinkedIn URL | Title | Email (if found) | Trustpilot Signal | Hiring Signal | Score | Status |
-|---|---|---|---|---|---|---|---|---|
-| | | | | | | | | |
+Week 1: LinkedIn Sales Navigator + free Hunter trial. Add Clay + Instantly in week 2.
