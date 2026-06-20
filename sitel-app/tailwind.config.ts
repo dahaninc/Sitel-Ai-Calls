@@ -9,52 +9,49 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        apple: {
+          black:  "#000000",
+          dark:   "#111111",
+          card:   "#1d1d1f",
+          text:   "#f5f5f7",
+          muted:  "#86868b",
+          dim:    "#515154",
+          blue:   "#0071e3",
+          green:  "#30d158",
+          border: "rgba(255,255,255,0.08)",
+        },
         brand: {
-          50:  "#eff6ff",
-          100: "#dbeafe",
           400: "#60a5fa",
           500: "#3b82f6",
           600: "#2563eb",
-          700: "#1d4ed8",
-          900: "#1e3a8a",
-        },
-        purple: {
-          500: "#8b5cf6",
-          600: "#7c3aed",
         },
         navy: {
           900: "#0a0f1e",
           800: "#0f172a",
           700: "#1e293b",
-          600: "#334155",
         },
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "SF Pro Display", "system-ui", "sans-serif"],
       },
       animation: {
-        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-        "fade-in": "fadeIn 0.6s ease-out",
-        "slide-up": "slideUp 0.6s ease-out",
-        "wave": "wave 1.5s ease-in-out infinite",
+        "wave": "wave 1.4s ease-in-out infinite",
+        "fade-up": "fadeUp 0.7s ease forwards",
+        "glow-pulse": "glowPulse 3s ease-in-out infinite",
       },
       keyframes: {
-        fadeIn: {
-          "0%": { opacity: "0" },
-          "100%": { opacity: "1" },
+        wave: {
+          "0%, 100%": { height: "6px", opacity: "0.4" },
+          "50%":      { height: "28px", opacity: "1" },
         },
-        slideUp: {
-          "0%": { opacity: "0", transform: "translateY(20px)" },
+        fadeUp: {
+          "0%":   { opacity: "0", transform: "translateY(24px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
-        wave: {
-          "0%, 100%": { transform: "scaleY(0.5)" },
-          "50%": { transform: "scaleY(1)" },
+        glowPulse: {
+          "0%, 100%": { opacity: "0.5" },
+          "50%":      { opacity: "1" },
         },
-      },
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "hero-glow": "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(37,99,235,0.3), transparent)",
       },
     },
   },
