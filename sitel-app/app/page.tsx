@@ -1,145 +1,147 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 const DEMO_PHONE = process.env.NEXT_PUBLIC_DEMO_PHONE || "+44 20 7946 0000";
 
-// ─── Utilities ────────────────────────────────────────────────────────────────
-function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(" ");
-}
-
-// ─── Nav ──────────────────────────────────────────────────────────────────────
-function Nav() {
-  const [scrolled, setScrolled] = useState(false);
+// ── Scroll reveal hook ──────────────────────────────────────────────────────
+function useReveal() {
+  const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", fn);
-    return () => window.removeEventListener("scroll", fn);
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { el.classList.add("visible"); obs.disconnect(); } },
+      { threshold: 0.12 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
   }, []);
-
-  return (
-    <nav className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-      scrolled ? "bg-navy-900/95 backdrop-blur-md border-b border-white/5" : ""
-    )}>
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-600 to-purple-600 flex items-center justify-center">
-            <span className="text-white text-xs font-bold">S</span>
-          </div>
-          <span className="text-white font-semibold text-lg tracking-tight">Sitel AI</span>
-        </div>
-        <div className="hidden md:flex items-center gap-8 text-sm text-slate-400">
-          <a href="#how-it-works" className="hover:text-white transition-colors">How it works</a>
-          <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-          <a href="#roi" className="hover:text-white transition-colors">ROI Calculator</a>
-          <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
-        </div>
-        <div className="flex items-center gap-3">
-          <a href="/dashboard" className="text-sm text-slate-400 hover:text-white transition-colors">
-            Client login
-          </a>
-          <a href="#contact"
-            className="text-sm bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg transition-colors font-medium">
-            Book a demo
-          </a>
-        </div>
-      </div>
-    </nav>
-  );
+  return ref;
 }
 
-// ─── Voice Waveform ───────────────────────────────────────────────────────────
+// ── Waveform ────────────────────────────────────────────────────────────────
 function Waveform({ active }: { active: boolean }) {
   return (
-    <div className="flex items-center gap-1 h-10">
+    <div className="flex items-end gap-[3px] h-8">
       {Array.from({ length: 10 }).map((_, i) => (
         <div
           key={i}
-          className={cn("wave-bar transition-all duration-300", !active && "!h-1 !opacity-20")}
-          style={{ animationPlayState: active ? "running" : "paused" }}
+          className="wave-bar"
+          style={{
+            animationPlayState: active ? "running" : "paused",
+            height: active ? undefined : "4px",
+            opacity: active ? undefined : 0.2,
+            transition: "height 0.3s, opacity 0.3s",
+          }}
         />
       ))}
     </div>
   );
 }
 
-// ─── Hero ─────────────────────────────────────────────────────────────────────
+// ── Nav ─────────────────────────────────────────────────────────────────────
+function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  return (
+    <nav
+      style={{
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
+        background: scrolled ? "rgba(0,0,0,0.85)" : "transparent",
+        backdropFilter: scrolled ? "blur(20px)" : "none",
+        WebkitBackdropFilter: scrolled ? "blur(20px)" : "none",
+        borderBottom: scrolled ? "1px solid rgba(255,255,255,0.06)" : "none",
+        transition: "background 0.4s ease, backdrop-filter 0.4s ease",
+      }}
+    >
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", height: 52, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span style={{ fontSize: 20, fontWeight: 700, color: "#f5f5f7", letterSpacing: "-0.02em" }}>Sitel AI</span>
+        <div style={{ display: "flex", gap: 32, fontSize: 14, color: "#86868b" }} className="hidden md:flex">
+          {[["How it works","#how-it-works"],["Pricing","#pricing"],["ROI","#roi"],["FAQ","#faq"]].map(([l,h]) => (
+            <a key={l} href={h} style={{ color: "#86868b", textDecoration: "none", transition: "color 0.2s" }}
+              onMouseEnter={e=>(e.currentTarget.style.color="#f5f5f7")}
+              onMouseLeave={e=>(e.currentTarget.style.color="#86868b")}>{l}</a>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <a href="/dashboard" style={{ fontSize: 14, color: "#86868b", textDecoration: "none" }}>Client login</a>
+          <a href="#contact" className="btn-primary" style={{ padding: "8px 18px", fontSize: 14 }}>Book a demo</a>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+// ── Hero ────────────────────────────────────────────────────────────────────
 function Hero() {
   const [calling, setCalling] = useState(false);
+  const handleCall = useCallback(() => {
+    setCalling(true);
+    setTimeout(() => setCalling(false), 8000);
+  }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+    <section style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "120px 24px 80px", textAlign: "center", position: "relative", overflow: "hidden" }}>
       {/* Background glow */}
-      <div className="absolute inset-0 bg-hero-glow pointer-events-none" />
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-brand-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 600, height: 400, background: "radial-gradient(ellipse, rgba(0,113,227,0.15) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-      <div className="relative max-w-5xl mx-auto px-6 text-center">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-sm text-slate-300 mb-8">
-          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-          Demo live — call right now
-        </div>
+      {/* Live badge */}
+      <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 980, padding: "6px 16px", fontSize: 13, color: "#86868b", marginBottom: 32 }}>
+        <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#30d158", display: "inline-block", animation: "glowPulse 2s ease-in-out infinite" }} />
+        Live demo available — call now
+      </div>
 
-        {/* Headline */}
-        <h1 className="text-5xl md:text-7xl font-black text-white leading-tight mb-6 tracking-tight">
-          AI Voice Support<br />
-          <span className="gradient-text">That Sounds Human.</span>
-        </h1>
+      {/* Headline */}
+      <h1 className="headline-xl" style={{ maxWidth: 900, marginBottom: 24 }}>
+        The AI that answers<br />
+        <span className="gradient-text">every call.</span>
+      </h1>
 
-        <p className="text-xl md:text-2xl text-slate-400 max-w-2xl mx-auto mb-4 leading-relaxed">
-          Replace your Tier-1 call centre agents with AI that handles order tracking, returns, and complaints — 24/7, for a fraction of the cost.
-        </p>
+      <p className="body-lg" style={{ maxWidth: 580, marginBottom: 48 }}>
+        Shopify brands use Sitel AI to handle order tracking, returns, and complaints automatically — 24/7, under a second response, live in 7 days.
+      </p>
 
-        <p className="text-base text-slate-500 mb-12">
-          Average client deflects <span className="text-white font-semibold">68% of inbound calls</span> automatically. Live in 7 days.
-        </p>
+      {/* CTAs */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "center", marginBottom: 56 }}>
+        <button onClick={handleCall} className="btn-primary" style={{ fontSize: 17, padding: "16px 32px" }}>
+          📞 {calling ? "Aria is listening…" : `Call the demo: ${DEMO_PHONE}`}
+        </button>
+        <a href="#roi" className="btn-secondary" style={{ fontSize: 17, padding: "16px 32px" }}>
+          Calculate your ROI →
+        </a>
+      </div>
 
-        {/* CTA */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-          <button
-            onClick={() => { setCalling(true); setTimeout(() => setCalling(false), 8000); }}
-            className="group flex items-center gap-3 bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 glow-blue"
-          >
-            <span className="text-2xl">📞</span>
-            Call the Demo: {DEMO_PHONE}
-          </button>
-          <a href="#roi"
-            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300">
-            Calculate your ROI →
-          </a>
-        </div>
-
-        {/* Live call indicator */}
-        <div className={cn(
-          "flex items-center justify-center gap-4 transition-all duration-500",
-          calling ? "opacity-100" : "opacity-40"
-        )}>
-          <span className="text-slate-400 text-sm">Aria is listening</span>
-          <Waveform active={calling} />
-          <span className="text-slate-400 text-sm">Try: "Where is my order?"</span>
-        </div>
+      {/* Waveform */}
+      <div style={{ display: "flex", alignItems: "center", gap: 16, opacity: calling ? 1 : 0.3, transition: "opacity 0.5s" }}>
+        <span style={{ fontSize: 13, color: "#86868b" }}>Aria is listening</span>
+        <Waveform active={calling} />
+        <span style={{ fontSize: 13, color: "#86868b" }}>Try: &quot;Where is my order?&quot;</span>
       </div>
     </section>
   );
 }
 
-// ─── Stats Bar ────────────────────────────────────────────────────────────────
-function StatsBar() {
+// ── Stats ───────────────────────────────────────────────────────────────────
+function Stats() {
+  const ref = useReveal();
   const stats = [
-    { value: "68%", label: "Average call deflection" },
-    { value: "< 400ms", label: "AI response time" },
-    { value: "£2.4M", label: "Saved for clients" },
-    { value: "99.5%", label: "Uptime SLA" },
-    { value: "7 days", label: "Average go-live" },
+    { n: "68%",    l: "Average call deflection" },
+    { n: "< 1s",   l: "AI response time" },
+    { n: "7 days", l: "Average go-live" },
+    { n: "24/7",   l: "No hold times, ever" },
   ];
   return (
-    <section className="border-y border-white/5 bg-white/2">
-      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-2 md:grid-cols-5 gap-8">
+    <section ref={ref} className="reveal" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "60px 24px", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 40 }}>
         {stats.map(s => (
-          <div key={s.label} className="text-center">
-            <div className="text-2xl md:text-3xl font-black gradient-text mb-1">{s.value}</div>
-            <div className="text-sm text-slate-500">{s.label}</div>
+          <div key={s.n} style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 44, fontWeight: 700, color: "#f5f5f7", letterSpacing: "-0.03em", lineHeight: 1 }}>{s.n}</div>
+            <div style={{ fontSize: 14, color: "#86868b", marginTop: 8 }}>{s.l}</div>
           </div>
         ))}
       </div>
@@ -147,71 +149,28 @@ function StatsBar() {
   );
 }
 
-// ─── Problem ──────────────────────────────────────────────────────────────────
+// ── Problem ──────────────────────────────────────────────────────────────────
 function Problem() {
+  const ref = useReveal();
   const pains = [
-    { emoji: "😤", text: "Customers waiting 20+ minutes on hold — leaving Trustpilot 1-stars" },
-    { emoji: "💸", text: "Each agent costs £28,000–£37,000/year including NI, pension, and churn" },
-    { emoji: "📈", text: "Call volume spikes at peak crush the team — Black Friday is a nightmare" },
-    { emoji: "🔄", text: "60–70% of calls are identical: 'where's my order?' and 'I want a refund'" },
-    { emoji: "😞", text: "Agents burn out on repetitive calls — average tenure is 14 months" },
+    { icon: "📞", title: "60–75% of calls are 'where's my order?'", body: "Repetitive, predictable, and completely automatable. Your team is spending most of their day on this." },
+    { icon: "💸", title: "Each CS agent costs £28k–£37k/year", body: "Plus NI, pension, equipment, training, and 14-month average tenure before they leave." },
+    { icon: "📈", title: "Volume spikes without warning", body: "Black Friday. A viral post. A delayed batch. Your team can't scale overnight. An AI can." },
+    { icon: "😞", title: "Customers hang up before they're answered", body: "Every minute on hold is a Trustpilot review waiting to happen. And you know it." },
   ];
   return (
-    <section className="py-24 max-w-5xl mx-auto px-6">
-      <div className="text-center mb-16">
-        <h2 className="text-4xl md:text-5xl font-black text-white mb-4">Your support team is drowning.</h2>
-        <p className="text-xl text-slate-400">And it's not their fault. The problem is the call volume.</p>
-      </div>
-      <div className="space-y-4">
-        {pains.map(p => (
-          <div key={p.text} className="glass rounded-xl p-5 flex items-start gap-4">
-            <span className="text-2xl">{p.emoji}</span>
-            <p className="text-slate-300 text-lg">{p.text}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-// ─── How It Works ─────────────────────────────────────────────────────────────
-function HowItWorks() {
-  const steps = [
-    {
-      step: "01", title: "We build Aria — your branded AI agent",
-      desc: "We write the full dialogue tree for your specific call flows — your products, your policies, your tone. Not a generic bot. Your agent.",
-      icon: "🎙️",
-    },
-    {
-      step: "02", title: "Connected to your phone line in 48 hours",
-      desc: "Aria sits on your existing number (or a new one). We integrate with Shopify, Gorgias, Zendesk, or any CRM via API so she has live order data.",
-      icon: "🔌",
-    },
-    {
-      step: "03", title: "Live in 7 days. Handles calls 24/7.",
-      desc: "She answers within 1 ring, day or night, never calls in sick, and handles your peak volume without hiring a single extra person.",
-      icon: "⚡",
-    },
-    {
-      step: "04", title: "You see everything in the dashboard",
-      desc: "Every call logged, transcribed, and analysed. Deflection rate, sentiment trends, top call reasons, churn risk alerts. All in real time.",
-      icon: "📊",
-    },
-  ];
-  return (
-    <section id="how-it-works" className="py-24 bg-navy-800/50">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-black text-white mb-4">How it works</h2>
-          <p className="text-xl text-slate-400">From zero to AI-powered support in one week.</p>
+    <section ref={ref} className="reveal" style={{ padding: "120px 24px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 80 }}>
+          <p style={{ fontSize: 14, letterSpacing: "0.12em", textTransform: "uppercase", color: "#86868b", marginBottom: 16 }}>The problem</p>
+          <h2 className="headline-lg">Your support team is overwhelmed.<br />It&apos;s not their fault.</h2>
         </div>
-        <div className="grid md:grid-cols-2 gap-6">
-          {steps.map(s => (
-            <div key={s.step} className="glass rounded-2xl p-8 relative overflow-hidden group hover:border-brand-600/30 transition-all duration-300">
-              <div className="absolute top-4 right-4 text-5xl font-black text-white/5 group-hover:text-white/10 transition-all">{s.step}</div>
-              <div className="text-4xl mb-4">{s.icon}</div>
-              <h3 className="text-xl font-bold text-white mb-3">{s.title}</h3>
-              <p className="text-slate-400 leading-relaxed">{s.desc}</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 1, background: "rgba(255,255,255,0.06)", borderRadius: 20, overflow: "hidden" }}>
+          {pains.map(p => (
+            <div key={p.title} style={{ background: "#000", padding: "40px 32px" }}>
+              <div style={{ fontSize: 32, marginBottom: 16 }}>{p.icon}</div>
+              <h3 style={{ fontSize: 18, fontWeight: 600, color: "#f5f5f7", marginBottom: 10, lineHeight: 1.4 }}>{p.title}</h3>
+              <p style={{ fontSize: 15, color: "#86868b", lineHeight: 1.6 }}>{p.body}</p>
             </div>
           ))}
         </div>
@@ -220,218 +179,263 @@ function HowItWorks() {
   );
 }
 
-// ─── Demo Scenarios ───────────────────────────────────────────────────────────
-function DemoScenarios() {
-  const [active, setActive] = useState(0);
-  const scenarios = [
-    {
-      trigger: "\"Where is my order?\"",
-      response: "Of course! Can I take your order number — it starts with #UK and has six digits? … Thank you, James. I can see your order #UK100234 — your Nike Air Max 90s were dispatched yesterday with DPD, tracking reference JD000292812GB, and they're due to arrive today by 6pm.",
-      intent: "Order Status", time: "38 seconds", resolved: true,
-    },
-    {
-      trigger: "\"I want to return this — it's not right\"",
-      response: "I'm sorry to hear that. I've pulled up your order — the Linen Blazer in Navy, Size 12, delivered on the 15th. That's well within our return window. I'll generate a free returns label now and email it to you. You can drop it at any DPD point. Once we receive it, your refund will be back in 5 to 7 working days. Does that work?",
-      intent: "Return Request", time: "52 seconds", resolved: true,
-    },
-    {
-      trigger: "\"This is absolutely disgusting, I've been waiting three weeks\"",
-      response: "I'm really sorry — that's completely unacceptable and I absolutely understand your frustration. Three weeks is far too long and this isn't the standard we aim for. Can I take your order number so I can pull this up right now and get it sorted for you today?",
-      intent: "Complaint", time: "1m 20s", resolved: true,
-    },
-    {
-      trigger: "\"I need to speak to a real person\"",
-      response: "Of course — I'll connect you to one of the team right now. Before I transfer you, can I take your name so they have everything they need? … Thank you, Emma. Please hold — I'm passing you over now along with a summary of your query.",
-      intent: "Escalation", time: "15 seconds", resolved: false,
-    },
+// ── How It Works ─────────────────────────────────────────────────────────────
+function HowItWorks() {
+  const ref = useReveal();
+  const steps = [
+    { n: "01", title: "We build your AI agent", body: "Custom dialogue trees for your exact call flows — your products, your policies, your tone. Not a generic bot." },
+    { n: "02", title: "Connected in 48 hours", body: "We put Aria on your Shopify phone line. Live order data, your CRM, your return policy — all integrated." },
+    { n: "03", title: "Go live in 7 days", body: "Answers in under a second, 24/7. Handles your peak volume without hiring a single extra person." },
+    { n: "04", title: "You see everything", body: "Every call transcribed, analysed, and surfaced. Churn risk alerts, sentiment trends, top call reasons — real time." },
   ];
-
   return (
-    <section className="py-24 max-w-6xl mx-auto px-6">
-      <div className="text-center mb-12">
-        <h2 className="text-4xl md:text-5xl font-black text-white mb-4">Hear it in action</h2>
-        <p className="text-xl text-slate-400">Real call scenarios. Real responses. No script reading.</p>
-      </div>
-      <div className="grid md:grid-cols-3 gap-4 mb-8">
-        {scenarios.map((s, i) => (
-          <button key={i} onClick={() => setActive(i)}
-            className={cn(
-              "text-left p-4 rounded-xl border transition-all duration-200 text-sm",
-              active === i
-                ? "border-brand-600 bg-brand-600/10 text-white"
-                : "border-white/10 glass text-slate-400 hover:border-white/20"
-            )}>
-            <div className="font-medium mb-1">{s.intent}</div>
-            <div className="text-xs opacity-70">{s.trigger}</div>
-          </button>
-        ))}
-        <a href={`tel:${DEMO_PHONE}`}
-          className="flex items-center justify-center gap-2 p-4 rounded-xl border border-dashed border-brand-600/50 text-brand-400 text-sm hover:bg-brand-600/10 transition-all">
-          📞 Try it live
-        </a>
-      </div>
-      <div className="glass rounded-2xl p-8">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-br from-brand-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">A</div>
-          <div>
-            <div className="text-white font-semibold">Aria</div>
-            <div className="text-xs text-slate-500">Sitel AI Agent</div>
-          </div>
-          <div className="ml-auto flex items-center gap-3">
-            <span className="text-xs text-slate-500">{scenarios[active].time}</span>
-            <span className={cn(
-              "text-xs px-2 py-1 rounded-full",
-              scenarios[active].resolved
-                ? "bg-green-500/20 text-green-400"
-                : "bg-blue-500/20 text-blue-400"
-            )}>
-              {scenarios[active].resolved ? "✓ AI resolved" : "→ Transferred"}
-            </span>
-          </div>
+    <section id="how-it-works" ref={ref} className="reveal" style={{ padding: "120px 24px", background: "#0a0a0a" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 80 }}>
+          <p style={{ fontSize: 14, letterSpacing: "0.12em", textTransform: "uppercase", color: "#86868b", marginBottom: 16 }}>How it works</p>
+          <h2 className="headline-lg">From zero to AI support.<br />In one week.</h2>
         </div>
-        <div className="bg-navy-900/50 rounded-xl p-5 mb-4">
-          <p className="text-slate-500 text-sm mb-3">Customer said:</p>
-          <p className="text-white font-medium text-lg">{scenarios[active].trigger}</p>
-        </div>
-        <div className="flex items-start gap-3">
-          <Waveform active={true} />
-          <p className="text-slate-300 leading-relaxed flex-1">{scenarios[active].response}</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 32 }}>
+          {steps.map((s, i) => (
+            <div key={s.n} className="reveal" style={{ transitionDelay: `${i * 0.1}s` }}>
+              <div style={{ fontSize: 13, color: "#0071e3", fontWeight: 600, marginBottom: 20, letterSpacing: "0.05em" }}>{s.n}</div>
+              <h3 style={{ fontSize: 20, fontWeight: 600, color: "#f5f5f7", marginBottom: 12 }}>{s.title}</h3>
+              <p style={{ fontSize: 15, color: "#86868b", lineHeight: 1.65 }}>{s.body}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-// ─── Pricing ──────────────────────────────────────────────────────────────────
+// ── Demo ─────────────────────────────────────────────────────────────────────
+function Demo() {
+  const ref = useReveal();
+  const [active, setActive] = useState(0);
+  const scenarios = [
+    {
+      label: "Order status",
+      caller: "Where is my order?",
+      aria: "Of course! Give me your order number — starts with #UK. … Found it. Your Nike Air Max were dispatched yesterday with DPD, reference JD000292812GB, arriving today by 6pm. Anything else?",
+      outcome: "AI resolved · 38 seconds",
+      sentiment: "positive",
+    },
+    {
+      label: "Return request",
+      caller: "I want to return this, it's not right.",
+      aria: "I'm sorry to hear that. Can I take your order number and the reason for your return? … Got it. I've raised your return request and you'll receive a prepaid label within 2 hours. Refund in 3–5 days.",
+      outcome: "AI resolved · 52 seconds",
+      sentiment: "positive",
+    },
+    {
+      label: "Complaint",
+      caller: "This is absolutely disgusting, I've been waiting three weeks.",
+      aria: "I completely understand your frustration, and I'm so sorry for the wait. Let me pull up your order right now and tell you exactly what's happened — and what we're doing to fix it.",
+      outcome: "De-escalated · Transferred to senior agent",
+      sentiment: "neutral",
+    },
+    {
+      label: "Escalation",
+      caller: "I need to speak to a real person, now.",
+      aria: "Of course, I'll transfer you straight away. While you're on hold — which is less than 2 minutes right now — can I take your order number so your agent has everything ready?",
+      outcome: "Transferred · 12 seconds",
+      sentiment: "neutral",
+    },
+  ];
+  const s = scenarios[active];
+
+  return (
+    <section ref={ref} className="reveal" style={{ padding: "120px 24px" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 64 }}>
+          <p style={{ fontSize: 14, letterSpacing: "0.12em", textTransform: "uppercase", color: "#86868b", marginBottom: 16 }}>Hear it in action</p>
+          <h2 className="headline-lg">Real scenarios.<br />Real responses.</h2>
+        </div>
+
+        {/* Tabs */}
+        <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 40 }}>
+          {scenarios.map((sc, i) => (
+            <button key={sc.label} onClick={() => setActive(i)}
+              style={{ padding: "8px 20px", borderRadius: 980, border: "none", cursor: "pointer", fontSize: 14, fontWeight: 500, transition: "all 0.2s",
+                background: active === i ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.04)",
+                color: active === i ? "#f5f5f7" : "#86868b" }}>
+              {sc.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Conversation */}
+        <div className="glass" style={{ borderRadius: 20, overflow: "hidden" }}>
+          {/* Header */}
+          <div style={{ padding: "16px 24px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,#3b82f6,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "white" }}>A</div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#f5f5f7" }}>Aria · Sitel AI Agent</div>
+              <div style={{ fontSize: 12, color: "#86868b" }}>AI-powered · Live 24/7</div>
+            </div>
+          </div>
+
+          {/* Messages */}
+          <div style={{ padding: "32px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <div style={{ background: "#0071e3", borderRadius: "18px 18px 4px 18px", padding: "12px 18px", maxWidth: "70%", fontSize: 15, color: "white", lineHeight: 1.5 }}>
+                {s.caller}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+              <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#3b82f6,#8b5cf6)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "white" }}>A</div>
+              <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: "4px 18px 18px 18px", padding: "12px 18px", maxWidth: "75%", fontSize: 15, color: "#f5f5f7", lineHeight: 1.65 }}>
+                {s.aria}
+              </div>
+            </div>
+          </div>
+
+          {/* Outcome */}
+          <div style={{ padding: "14px 24px", borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#30d158", display: "inline-block" }} />
+            <span style={{ fontSize: 13, color: "#86868b" }}>{s.outcome}</span>
+          </div>
+        </div>
+
+        <p style={{ textAlign: "center", marginTop: 32, fontSize: 14, color: "#515154" }}>
+          Call the live demo: <a href={`tel:${DEMO_PHONE}`} style={{ color: "#0071e3", textDecoration: "none" }}>{DEMO_PHONE}</a>
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// ── Pricing ──────────────────────────────────────────────────────────────────
 function Pricing() {
+  const ref = useReveal();
   const tiers = [
     {
-      name: "Starter", setup: "£5,000", monthly: "£1,800", calls: "1,000",
-      overage: "£0.10/min", highlight: false,
-      features: ["1 use case (order tracking OR returns)", "1 UK phone number", "Shopify integration", "Call transcripts", "Monthly report", "Email support"],
-      roi: "Replaces 1 agent. Payback in ~10 weeks.",
+      name: "Starter", setup: "£5,000", monthly: "£1,800", calls: "1,000 calls/mo",
+      features: ["1 use case", "Shopify integration", "1 UK number", "Call transcripts", "Monthly report"],
+      roi: "Replaces 1 agent. Payback ~10 weeks.",
+      highlight: false,
     },
     {
-      name: "Growth", setup: "£8,000", monthly: "£3,400", calls: "3,000",
-      overage: "£0.08/min", highlight: true,
-      features: ["3 use cases (tracking + returns + complaints)", "Full CRM integration", "2 UK phone numbers", "Custom webhook triggers", "Bi-weekly review call", "Dedicated account manager"],
-      roi: "Replaces 1.5–2 agents. Payback in ~4 weeks.",
+      name: "Growth", setup: "£8,000", monthly: "£3,400", calls: "3,000 calls/mo",
+      features: ["3 use cases", "Full CRM integration", "2 UK numbers", "Custom webhooks", "Bi-weekly review", "Account manager"],
+      roi: "Replaces 1.5–2 agents. Payback ~4 weeks.",
+      highlight: true,
     },
     {
-      name: "Scale", setup: "£15,000", monthly: "£6,500", calls: "8,000",
-      overage: "£0.06/min", highlight: false,
-      features: ["Unlimited use cases", "Full telephony setup / port existing number", "Multi-CRM integration", "Real-time dashboard", "Agent assist mode", "Multi-language support"],
-      roi: "Replaces 4–6 agents. Payback in < 1 month.",
+      name: "Scale", setup: "£15,000", monthly: "£6,500", calls: "8,000 calls/mo",
+      features: ["Unlimited use cases", "Full telephony setup", "Multi-CRM", "Real-time dashboard", "Agent assist", "Multi-language"],
+      roi: "Replaces 4–6 agents. Payback < 1 month.",
+      highlight: false,
     },
   ];
 
   return (
-    <section id="pricing" className="py-24 bg-navy-800/50">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-black text-white mb-4">Simple pricing. Real ROI.</h2>
-          <p className="text-xl text-slate-400">A single UK agent costs £30K–£37K/year. Our Growth plan is £40,800. And it handles 3× the volume.</p>
+    <section id="pricing" ref={ref} className="reveal" style={{ padding: "120px 24px", background: "#0a0a0a" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 80 }}>
+          <p style={{ fontSize: 14, letterSpacing: "0.12em", textTransform: "uppercase", color: "#86868b", marginBottom: 16 }}>Pricing</p>
+          <h2 className="headline-lg">Less than one hire.<br />More than one agent.</h2>
+          <p className="body-lg" style={{ marginTop: 16 }}>A UK CS agent costs £30k–£37k/year. Our Growth plan is £40,800. It handles 3× the volume.</p>
         </div>
-        <div className="grid md:grid-cols-3 gap-6">
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 24 }}>
           {tiers.map(t => (
-            <div key={t.name} className={cn(
-              "rounded-2xl p-8 flex flex-col relative overflow-hidden",
-              t.highlight
-                ? "bg-gradient-to-b from-brand-600/20 to-purple-600/10 border border-brand-600/40"
-                : "glass"
-            )}>
+            <div key={t.name}
+              style={{
+                borderRadius: 20, padding: "40px 32px", position: "relative",
+                background: t.highlight ? "rgba(0,113,227,0.08)" : "rgba(255,255,255,0.03)",
+                border: t.highlight ? "1px solid rgba(0,113,227,0.4)" : "1px solid rgba(255,255,255,0.08)",
+              }}>
               {t.highlight && (
-                <div className="absolute top-4 right-4 bg-brand-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                  Most Popular
+                <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: "#0071e3", color: "white", fontSize: 12, fontWeight: 600, padding: "4px 16px", borderRadius: 980 }}>
+                  Most popular
                 </div>
               )}
-              <div className="mb-6">
-                <h3 className="text-xl font-bold text-white mb-4">{t.name}</h3>
-                <div className="text-4xl font-black text-white">{t.monthly}<span className="text-lg font-normal text-slate-400">/mo</span></div>
-                <div className="text-slate-500 text-sm mt-1">{t.setup} setup · {t.calls} calls included</div>
+              <div style={{ fontSize: 14, color: "#86868b", marginBottom: 8 }}>{t.name}</div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 4 }}>
+                <span style={{ fontSize: 40, fontWeight: 700, color: "#f5f5f7", letterSpacing: "-0.03em" }}>{t.monthly}</span>
+                <span style={{ fontSize: 14, color: "#86868b" }}>/mo</span>
               </div>
-              <ul className="space-y-3 mb-8 flex-1">
+              <div style={{ fontSize: 13, color: "#515154", marginBottom: 32 }}>{t.setup} setup · {t.calls}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 32 }}>
                 {t.features.map(f => (
-                  <li key={f} className="flex items-start gap-2 text-slate-300 text-sm">
-                    <span className="text-brand-400 mt-0.5">✓</span> {f}
-                  </li>
+                  <div key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#86868b" }}>
+                    <span style={{ color: "#30d158", fontSize: 16 }}>✓</span> {f}
+                  </div>
                 ))}
-              </ul>
-              <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 mb-6">
-                <p className="text-green-400 text-sm font-medium">💰 {t.roi}</p>
               </div>
-              <a href="#contact"
-                className={cn(
-                  "text-center py-3 rounded-xl font-semibold transition-all",
-                  t.highlight
-                    ? "bg-brand-600 hover:bg-brand-700 text-white"
-                    : "bg-white/5 hover:bg-white/10 border border-white/10 text-white"
-                )}>
+              <div style={{ fontSize: 13, color: "#86868b", padding: "12px 16px", background: "rgba(255,255,255,0.04)", borderRadius: 12, marginBottom: 24 }}>
+                💰 {t.roi}
+              </div>
+              <a href="#contact" className={t.highlight ? "btn-primary" : "btn-secondary"} style={{ width: "100%", justifyContent: "center", display: "flex" }}>
                 Get started
               </a>
             </div>
           ))}
         </div>
-        <p className="text-center text-slate-500 text-sm mt-8">
-          Not sure which tier? Call the demo first: <span className="text-white">{DEMO_PHONE}</span>
-        </p>
       </div>
     </section>
   );
 }
 
-// ─── ROI Calculator ───────────────────────────────────────────────────────────
-function ROICalculator() {
+// ── ROI Calculator ────────────────────────────────────────────────────────────
+function ROI() {
+  const ref = useReveal();
   const [agents, setAgents] = useState(3);
   const [salary, setSalary] = useState(26000);
-  const [tier, setTier] = useState<"starter" | "growth" | "scale">("growth");
+  const [tier, setTier] = useState<"starter"|"growth"|"scale">("growth");
 
-  const tierCosts = { starter: { setup: 5000, monthly: 1800 }, growth: { setup: 8000, monthly: 3400 }, scale: { setup: 15000, monthly: 6500 } };
-  const selected = tierCosts[tier];
-
-  const annualAgentCost = agents * salary * 1.168; // salary + NI + pension
-  const agentsRemaining = Math.max(1, Math.ceil(agents * 0.3)); // keep 30% for escalations
-  const newAnnualCost = agentsRemaining * salary * 1.168 + selected.monthly * 12;
-  const annualSaving = annualAgentCost - newAnnualCost;
-  const paybackWeeks = Math.ceil((selected.setup / (annualSaving / 52)));
+  const tierCosts: Record<string, number> = { starter: 21600+5000, growth: 40800+8000, scale: 78000+15000 };
+  const agentTotal = Math.round(agents * salary * 1.175); // +17.5% employer costs
+  const sitelCost = tierCosts[tier];
+  const saving = agentTotal - (Math.round(salary * 0.175 * 1 + sitelCost)); // keep 1 human agent
+  const weeks = Math.round(sitelCost / (saving / 52));
 
   return (
-    <section id="roi" className="py-24 max-w-5xl mx-auto px-6">
-      <div className="text-center mb-12">
-        <h2 className="text-4xl md:text-5xl font-black text-white mb-4">Calculate your savings</h2>
-        <p className="text-xl text-slate-400">Drag the sliders. See your number.</p>
-      </div>
-      <div className="glass rounded-2xl p-8 md:p-12">
-        <div className="grid md:grid-cols-2 gap-12">
-          {/* Inputs */}
-          <div className="space-y-8">
+    <section id="roi" ref={ref} className="reveal" style={{ padding: "120px 24px" }}>
+      <div style={{ maxWidth: 800, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 64 }}>
+          <p style={{ fontSize: 14, letterSpacing: "0.12em", textTransform: "uppercase", color: "#86868b", marginBottom: 16 }}>ROI Calculator</p>
+          <h2 className="headline-lg">See your number.</h2>
+        </div>
+
+        <div className="glass" style={{ borderRadius: 24, padding: "48px 40px" }}>
+          <div style={{ display: "grid", gap: 40 }}>
+            {/* Agents slider */}
             <div>
-              <div className="flex justify-between mb-3">
-                <label className="text-white font-semibold">Customer service agents</label>
-                <span className="text-brand-400 font-bold text-xl">{agents}</span>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                <span style={{ fontSize: 15, color: "#f5f5f7" }}>Customer service agents</span>
+                <span style={{ fontSize: 15, fontWeight: 600, color: "#f5f5f7" }}>{agents}</span>
               </div>
-              <input type="range" min={1} max={20} value={agents} onChange={e => setAgents(+e.target.value)}
-                className="w-full accent-blue-500" />
-              <div className="flex justify-between text-xs text-slate-500 mt-1"><span>1</span><span>20</span></div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-3">
-                <label className="text-white font-semibold">Average salary</label>
-                <span className="text-brand-400 font-bold text-xl">£{salary.toLocaleString()}</span>
+              <input type="range" min={1} max={20} value={agents} onChange={e=>setAgents(+e.target.value)} />
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#515154", marginTop: 4 }}>
+                <span>1</span><span>20</span>
               </div>
-              <input type="range" min={18000} max={45000} step={500} value={salary} onChange={e => setSalary(+e.target.value)}
-                className="w-full accent-blue-500" />
-              <div className="flex justify-between text-xs text-slate-500 mt-1"><span>£18k</span><span>£45k</span></div>
             </div>
+
+            {/* Salary slider */}
             <div>
-              <label className="text-white font-semibold block mb-3">Sitel AI plan</label>
-              <div className="grid grid-cols-3 gap-2">
-                {(["starter", "growth", "scale"] as const).map(t => (
-                  <button key={t} onClick={() => setTier(t)}
-                    className={cn(
-                      "py-2 rounded-lg text-sm font-medium transition-all capitalize",
-                      tier === t ? "bg-brand-600 text-white" : "bg-white/5 text-slate-400 hover:bg-white/10"
-                    )}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                <span style={{ fontSize: 15, color: "#f5f5f7" }}>Average salary</span>
+                <span style={{ fontSize: 15, fontWeight: 600, color: "#f5f5f7" }}>£{salary.toLocaleString()}</span>
+              </div>
+              <input type="range" min={18000} max={45000} step={1000} value={salary} onChange={e=>setSalary(+e.target.value)} />
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#515154", marginTop: 4 }}>
+                <span>£18k</span><span>£45k</span>
+              </div>
+            </div>
+
+            {/* Plan selector */}
+            <div>
+              <span style={{ fontSize: 15, color: "#f5f5f7", display: "block", marginBottom: 12 }}>Sitel AI plan</span>
+              <div style={{ display: "flex", gap: 8 }}>
+                {(["starter","growth","scale"] as const).map(t => (
+                  <button key={t} onClick={()=>setTier(t)}
+                    style={{ flex: 1, padding: "10px", borderRadius: 10, border: "1px solid", cursor: "pointer", fontSize: 13, fontWeight: 500, transition: "all 0.2s", textTransform: "capitalize",
+                      background: tier===t ? "rgba(0,113,227,0.15)" : "rgba(255,255,255,0.04)",
+                      borderColor: tier===t ? "#0071e3" : "rgba(255,255,255,0.08)",
+                      color: tier===t ? "#60a5fa" : "#86868b" }}>
                     {t}
                   </button>
                 ))}
@@ -440,30 +444,19 @@ function ROICalculator() {
           </div>
 
           {/* Results */}
-          <div className="flex flex-col justify-center space-y-6">
-            <div className="bg-navy-900/50 rounded-xl p-6">
-              <div className="text-slate-500 text-sm mb-1">Current annual cost</div>
-              <div className="text-3xl font-black text-white">£{Math.round(annualAgentCost).toLocaleString()}</div>
-              <div className="text-slate-600 text-xs mt-1">{agents} agents × £{salary.toLocaleString()} + employer costs</div>
+          <div style={{ marginTop: 48, paddingTop: 40, borderTop: "1px solid rgba(255,255,255,0.08)", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 24, textAlign: "center" }}>
+            <div>
+              <div style={{ fontSize: 13, color: "#86868b", marginBottom: 6 }}>Current annual cost</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: "#f5f5f7", letterSpacing: "-0.02em" }}>£{agentTotal.toLocaleString()}</div>
             </div>
-            <div className="bg-navy-900/50 rounded-xl p-6">
-              <div className="text-slate-500 text-sm mb-1">With Sitel AI</div>
-              <div className="text-3xl font-black text-white">£{Math.round(newAnnualCost).toLocaleString()}</div>
-              <div className="text-slate-600 text-xs mt-1">{agentsRemaining} human agent{agentsRemaining > 1 ? "s" : ""} + {tier} plan</div>
+            <div>
+              <div style={{ fontSize: 13, color: "#86868b", marginBottom: 6 }}>Annual saving</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: "#30d158", letterSpacing: "-0.02em" }}>£{Math.max(0,saving).toLocaleString()}</div>
             </div>
-            <div className="bg-gradient-to-r from-green-500/20 to-brand-600/20 border border-green-500/30 rounded-xl p-6">
-              <div className="text-green-400 text-sm mb-1 font-medium">Annual saving</div>
-              <div className="text-4xl font-black text-green-400">
-                £{Math.round(Math.max(0, annualSaving)).toLocaleString()}
-              </div>
-              <div className="text-slate-400 text-sm mt-2">
-                Setup fee paid back in <span className="text-white font-bold">{paybackWeeks} weeks</span>
-              </div>
+            <div>
+              <div style={{ fontSize: 13, color: "#86868b", marginBottom: 6 }}>Payback period</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: "#f5f5f7", letterSpacing: "-0.02em" }}>{weeks > 0 && weeks < 200 ? `${weeks}wk` : "—"}</div>
             </div>
-            <a href="#contact"
-              className="text-center bg-brand-600 hover:bg-brand-700 text-white py-4 rounded-xl font-semibold transition-all">
-              Get your custom quote →
-            </a>
           </div>
         </div>
       </div>
@@ -471,126 +464,123 @@ function ROICalculator() {
   );
 }
 
-// ─── Objections / FAQ ─────────────────────────────────────────────────────────
+// ── FAQ ───────────────────────────────────────────────────────────────────────
 function FAQ() {
-  const [open, setOpen] = useState<number | null>(null);
+  const ref = useReveal();
+  const [open, setOpen] = useState<number|null>(null);
   const faqs = [
-    { q: "What if the AI gets it wrong?", a: "The agent only does what it's explicitly instructed to do — it never guesses. If something is outside its scope, it escalates immediately. And when something goes wrong, we fix the prompt permanently. Your human agents can make the same error 1,000 times. The AI makes it once." },
-    { q: "Will our customers know they're talking to AI?", a: "Yes — we disclose at the start of every call as required by UK law. But experience shows customers care about speed and resolution, not who answered. In blind tests, a significant proportion can't tell the difference. And any customer who wants a human gets one instantly." },
-    { q: "How long does it take to go live?", a: "7 working days from the onboarding call. We build the agent, connect your phone line, run internal testing, and soft-launch it alongside your human team before full deployment." },
-    { q: "What about GDPR and call recording?", a: "We handle it. AI disclosure script, call recording consent language, Data Processing Agreement, ICO registration — all covered. We provide the template language for your privacy policy and the DPA for your contract with us." },
-    { q: "What if it can't handle a call?", a: "Any call the agent can't confidently resolve — or where the customer asks for a human — is transferred within 5 seconds, with a summary of the conversation so your agent doesn't start from zero." },
-    { q: "Can we try before we buy?", a: "Call the demo right now: " + DEMO_PHONE + ". That answers the question of whether the technology works. For a full pilot specific to your business, we require a 3-month contract — with a guarantee: if deflection doesn't reach 50% by Day 60, we waive Month 3." },
+    { q: "Will our customers know they're talking to AI?", a: "Yes — UK GDPR requires AI disclosure at the start of every call. Aria identifies itself as an AI assistant. In practice, 94% of callers stay on the call and get their query resolved. Customers care about speed and accuracy, not whether it's a human." },
+    { q: "What if the AI gets something wrong?", a: "Aria is trained on your specific product catalogue, policies, and FAQs before going live. For anything outside its confidence threshold, it escalates to your team instantly with a full transcript so the agent is briefed immediately." },
+    { q: "How long does setup actually take?", a: "7 days for Starter and Growth. Day 1–2: we build the dialogue tree. Day 3–4: Shopify integration and test calls. Day 5–6: soft launch with monitoring. Day 7: full handover." },
+    { q: "What about GDPR and call recording?", a: "Every call begins with an AI disclosure and recording consent. We provide a full Data Processing Agreement, store data on UK/EU servers, and can provide an ICO registration checklist. Compliant out of the box." },
+    { q: "Can we try before committing?", a: "Call +44 20 7946 0000 right now — that's a live Aria demo. We also offer a 30-day pilot on the Starter plan where you can terminate if the deflection rate doesn't meet the agreed target." },
+    { q: "What happens to calls Aria can't handle?", a: "Aria transfers to your team in under 3 seconds with a live transcript. Your agent picks up already knowing the customer's name, order number, and the reason they called. Average human handle time drops 40%." },
   ];
+
   return (
-    <section id="faq" className="py-24 max-w-3xl mx-auto px-6">
-      <div className="text-center mb-12">
-        <h2 className="text-4xl md:text-5xl font-black text-white mb-4">Every question, answered.</h2>
-      </div>
-      <div className="space-y-3">
-        {faqs.map((f, i) => (
-          <div key={i} className="glass rounded-xl overflow-hidden">
-            <button className="w-full text-left p-6 flex items-center justify-between gap-4" onClick={() => setOpen(open === i ? null : i)}>
-              <span className="text-white font-semibold">{f.q}</span>
-              <span className={cn("text-slate-400 transition-transform duration-200 text-xl", open === i && "rotate-45")}>+</span>
-            </button>
-            {open === i && (
-              <div className="px-6 pb-6 text-slate-400 leading-relaxed border-t border-white/5 pt-4">{f.a}</div>
-            )}
-          </div>
-        ))}
+    <section id="faq" ref={ref} className="reveal" style={{ padding: "120px 24px", background: "#0a0a0a" }}>
+      <div style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 80 }}>
+          <p style={{ fontSize: 14, letterSpacing: "0.12em", textTransform: "uppercase", color: "#86868b", marginBottom: 16 }}>FAQ</p>
+          <h2 className="headline-lg">Every question,<br />answered.</h2>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          {faqs.map((f, i) => (
+            <div key={i} style={{ borderTop: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
+              <button onClick={() => setOpen(open===i ? null : i)}
+                style={{ width: "100%", padding: "24px 0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "none", border: "none", cursor: "pointer", textAlign: "left", gap: 16 }}>
+                <span style={{ fontSize: 17, fontWeight: 500, color: "#f5f5f7" }}>{f.q}</span>
+                <span style={{ fontSize: 24, color: "#86868b", flexShrink: 0, transition: "transform 0.3s", transform: open===i ? "rotate(45deg)" : "rotate(0)" }}>+</span>
+              </button>
+              <div style={{ maxHeight: open===i ? 400 : 0, overflow: "hidden", transition: "max-height 0.4s ease" }}>
+                <p style={{ fontSize: 15, color: "#86868b", lineHeight: 1.7, paddingBottom: 24 }}>{f.a}</p>
+              </div>
+            </div>
+          ))}
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }} />
+        </div>
       </div>
     </section>
   );
 }
 
-// ─── CTA / Contact ────────────────────────────────────────────────────────────
+// ── CTA ───────────────────────────────────────────────────────────────────────
 function CTA() {
+  const ref = useReveal();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSent(true);
-  };
-
   return (
-    <section id="contact" className="py-24 bg-gradient-to-b from-transparent to-navy-800/50">
-      <div className="max-w-3xl mx-auto px-6 text-center">
-        <h2 className="text-4xl md:text-5xl font-black text-white mb-4">Ready to stop drowning in calls?</h2>
-        <p className="text-xl text-slate-400 mb-12">Call the demo, then book 20 minutes with us. We'll show you exactly what Aria would handle for your brand.</p>
-
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-          <a href={`tel:${DEMO_PHONE}`}
-            className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:border-brand-600/50 text-white px-8 py-4 rounded-xl font-semibold transition-all">
-            📞 Call demo: {DEMO_PHONE}
-          </a>
-        </div>
-
+    <section id="contact" ref={ref} className="reveal" style={{ padding: "140px 24px", textAlign: "center" }}>
+      <div style={{ maxWidth: 680, margin: "0 auto" }}>
+        <h2 className="headline-lg" style={{ marginBottom: 20 }}>Ready to stop<br />drowning in calls?</h2>
+        <p className="body-lg" style={{ marginBottom: 48 }}>
+          Call the demo, then book 20 minutes with us. We&apos;ll show you exactly what Aria would handle for your brand.
+        </p>
+        <a href={`tel:${DEMO_PHONE}`} className="btn-primary" style={{ fontSize: 18, padding: "18px 40px", marginBottom: 40, display: "inline-flex" }}>
+          📞 Call demo: {DEMO_PHONE}
+        </a>
+        <p style={{ fontSize: 14, color: "#515154", marginBottom: 24 }}>Or leave your email — we&apos;ll reach out within 2 hours.</p>
         {!sent ? (
-          <form onSubmit={handleSubmit} className="glass rounded-2xl p-8">
-            <p className="text-white font-semibold mb-6">Or leave your email — we'll reach out within 2 hours.</p>
-            <div className="flex gap-3">
-              <input
-                type="email" required placeholder="your@company.com"
-                value={email} onChange={e => setEmail(e.target.value)}
-                className="flex-1 bg-white/5 border border-white/10 text-white placeholder-slate-600 rounded-xl px-4 py-3 outline-none focus:border-brand-600/50 transition-all"
-              />
-              <button type="submit"
-                className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 rounded-xl font-semibold transition-all whitespace-nowrap">
-                Book a call →
-              </button>
-            </div>
+          <form onSubmit={e => { e.preventDefault(); setSent(true); }} style={{ display: "flex", gap: 12, maxWidth: 420, margin: "0 auto", flexWrap: "wrap", justifyContent: "center" }}>
+            <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              style={{ flex: 1, minWidth: 220, padding: "14px 18px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#f5f5f7", fontSize: 15, outline: "none" }} />
+            <button type="submit" className="btn-primary" style={{ padding: "14px 24px" }}>Book a call →</button>
           </form>
         ) : (
-          <div className="glass rounded-2xl p-8 text-center">
-            <div className="text-4xl mb-3">✅</div>
-            <p className="text-white font-semibold text-xl">We'll be in touch within 2 hours.</p>
-            <p className="text-slate-400 mt-2">In the meantime — call the demo: {DEMO_PHONE}</p>
-          </div>
+          <p style={{ color: "#30d158", fontSize: 16 }}>✓ We&apos;ll be in touch within 2 hours.</p>
         )}
       </div>
     </section>
   );
 }
 
-// ─── Footer ───────────────────────────────────────────────────────────────────
+// ── Footer ────────────────────────────────────────────────────────────────────
 function Footer() {
   return (
-    <footer className="border-t border-white/5 py-12">
-      <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-600 to-purple-600 flex items-center justify-center">
-            <span className="text-white text-xs font-bold">S</span>
-          </div>
-          <span className="text-white font-semibold">Sitel AI</span>
+    <footer style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "48px 24px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 24 }}>
+        <span style={{ fontSize: 16, fontWeight: 700, color: "#f5f5f7" }}>Sitel AI</span>
+        <div style={{ display: "flex", gap: 32, fontSize: 13, color: "#515154" }}>
+          <a href="#" style={{ color: "#515154", textDecoration: "none" }}>Privacy</a>
+          <a href="#" style={{ color: "#515154", textDecoration: "none" }}>Terms</a>
+          <a href="#" style={{ color: "#515154", textDecoration: "none" }}>GDPR</a>
+          <a href="/dashboard" style={{ color: "#515154", textDecoration: "none" }}>Client portal</a>
         </div>
-        <div className="flex items-center gap-6 text-sm text-slate-500">
-          <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-          <a href="#" className="hover:text-white transition-colors">Terms</a>
-          <a href="#" className="hover:text-white transition-colors">GDPR</a>
-          <span>© 2026 Sitel AI Ltd.</span>
-        </div>
+        <span style={{ fontSize: 13, color: "#515154" }}>© 2026 Sitel AI Ltd.</span>
       </div>
     </footer>
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-export default function HomePage() {
+// ── Root ──────────────────────────────────────────────────────────────────────
+export default function Page() {
+  // Wire up all .reveal elements after mount
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("visible"); }),
+      { threshold: 0.1 }
+    );
+    document.querySelectorAll(".reveal").forEach(el => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
   return (
-    <main className="min-h-screen bg-navy-900">
+    <>
       <Nav />
-      <Hero />
-      <StatsBar />
-      <Problem />
-      <HowItWorks />
-      <DemoScenarios />
-      <Pricing />
-      <ROICalculator />
-      <FAQ />
-      <CTA />
+      <main>
+        <Hero />
+        <Stats />
+        <Problem />
+        <HowItWorks />
+        <Demo />
+        <Pricing />
+        <ROI />
+        <FAQ />
+        <CTA />
+      </main>
       <Footer />
-    </main>
+    </>
   );
 }
