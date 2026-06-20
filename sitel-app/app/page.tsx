@@ -69,7 +69,7 @@ function Nav() {
           ))}
         </div>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          <a href="/dashboard" style={{ fontSize: 14, color: "#86868b", textDecoration: "none" }}>Client login</a>
+          <a href="/login" style={{ fontSize: 14, color: "#86868b", textDecoration: "none" }}>Client login</a>
           <a href="#contact" className="btn-primary" style={{ padding: "8px 18px", fontSize: 14 }}>Book a demo</a>
         </div>
       </div>
@@ -508,7 +508,22 @@ function FAQ() {
 function CTA() {
   const ref = useReveal();
   const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<"idle"|"loading"|"sent"|"error">("idle");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setStatus("loading");
+    try {
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, source: "landing_page_cta" }),
+      });
+      setStatus(res.ok ? "sent" : "error");
+    } catch {
+      setStatus("error");
+    }
+  }
 
   return (
     <section id="contact" ref={ref} className="reveal" style={{ padding: "140px 24px", textAlign: "center" }}>
@@ -521,15 +536,20 @@ function CTA() {
           📞 Call demo: {DEMO_PHONE}
         </a>
         <p style={{ fontSize: 14, color: "#515154", marginBottom: 24 }}>Or leave your email — we&apos;ll reach out within 2 hours.</p>
-        {!sent ? (
-          <form onSubmit={e => { e.preventDefault(); setSent(true); }} style={{ display: "flex", gap: 12, maxWidth: 420, margin: "0 auto", flexWrap: "wrap", justifyContent: "center" }}>
-            <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
-              placeholder="your@email.com"
-              style={{ flex: 1, minWidth: 220, padding: "14px 18px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#f5f5f7", fontSize: 15, outline: "none" }} />
-            <button type="submit" className="btn-primary" style={{ padding: "14px 24px" }}>Book a call →</button>
-          </form>
+        {status === "sent" ? (
+          <p style={{ color: "#30d158", fontSize: 16 }}>✓ Got it — we&apos;ll be in touch within 2 hours.</p>
         ) : (
-          <p style={{ color: "#30d158", fontSize: 16 }}>✓ We&apos;ll be in touch within 2 hours.</p>
+          <>
+            <form onSubmit={handleSubmit} style={{ display: "flex", gap: 12, maxWidth: 420, margin: "0 auto", flexWrap: "wrap", justifyContent: "center" }}>
+              <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                style={{ flex: 1, minWidth: 220, padding: "14px 18px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#f5f5f7", fontSize: 15, outline: "none" }} />
+              <button type="submit" disabled={status === "loading"} className="btn-primary" style={{ padding: "14px 24px", opacity: status === "loading" ? 0.7 : 1 }}>
+                {status === "loading" ? "Sending…" : "Book a call →"}
+              </button>
+            </form>
+            {status === "error" && <p style={{ color: "#ff453a", fontSize: 13, marginTop: 10 }}>Something went wrong — email us directly at hello@sitel.ai</p>}
+          </>
         )}
       </div>
     </section>
